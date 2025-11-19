@@ -1,0 +1,347 @@
+﻿<!--<Window x:Class="DRM_Management.EmailSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Manage Email Addresses"
+        Height="400" Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        FontFamily="Segoe UI">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        -->
+<!-- DataGrid -->
+<!--
+        <DataGrid x:Name="EmailGrid" AutoGenerateColumns="False" CanUserAddRows="False" 
+                  SelectionMode="Single" Margin="0,0,0,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="S.No" Binding="{Binding Index}" Width="60" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        -->
+<!-- Controls -->
+<!--
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+            <TextBox x:Name="NewEmailBox" Width="193" Height="30" Text="Enter email..." RenderTransformOrigin="0.567,0.333"/>
+            <Button Content="Add" Width="55" Height="25" Margin="5" Click="AddEmail_Click"/>
+            <Button Content="Update" Width="51" Height="25" Margin="5" Click="UpdateEmail_Click"/>
+            <Button Content="Delete" Width="59" Height="27" Margin="5" Click="DeleteEmail_Click"/>
+            <Button Content="Save" Width="65" Height="30" Margin="5" Background="#27AE60" Foreground="White" Click="SaveEmails_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>-->
+
+<Window x:Class="DRM_Management.EmailSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Manage Email Addresses"
+        Height="477" Width="600"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        AllowsTransparency="True" WindowStyle="None"
+        Background="Transparent"
+        FontFamily="Segoe UI">
+
+    <!-- ====================== RESOURCES ====================== -->
+    <Window.Resources>
+
+        <!-- Glass Background & Card -->
+        <SolidColorBrush x:Key="GlassBackground" Color="#F0FFFFFF"/>
+        <SolidColorBrush x:Key="GlassCard"      Color="#E8F5FF"/>
+
+        <!-- Rounded TextBox Template (Fix for CornerRadius) -->
+        <ControlTemplate x:Key="RoundedTextBoxTemplate" TargetType="TextBox">
+            <Border Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="10"
+                    Padding="{TemplateBinding Padding}">
+                <ScrollViewer x:Name="PART_ContentHost" 
+                              Margin="0"
+                              Focusable="False"
+                              HorizontalScrollBarVisibility="Hidden"
+                              VerticalScrollBarVisibility="Hidden"/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsKeyboardFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#6C5CE7"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Ripple Button Base -->
+        <Style x:Key="RippleButton" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="Border"
+                                    Background="{TemplateBinding Background}"
+                                    CornerRadius="10"/>
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                            <Ellipse x:Name="Ripple" Fill="White" Opacity="0"
+                                     Width="0" Height="0"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <EventTrigger RoutedEvent="MouseEnter">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Border"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0.85" Duration="0:0:0.2"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="MouseLeave">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Border"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="1" Duration="0:0:0.2"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="PreviewMouseDown">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Ripple"
+                                                         Storyboard.TargetProperty="Width"
+                                                         To="180" Duration="0:0:0.5"/>
+                                        <DoubleAnimation Storyboard.TargetName="Ripple"
+                                                         Storyboard.TargetProperty="Height"
+                                                         To="180" Duration="0:0:0.5"/>
+                                        <DoubleAnimation Storyboard.TargetName="Ripple"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         From="0.4" To="0" Duration="0:0:0.5"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Button (Purple) -->
+        <Style x:Key="ModernButtonStyle" TargetType="Button" BasedOn="{StaticResource RippleButton}">
+            <Setter Property="Background" Value="#6C5CE7"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Margin" Value="6"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#30000000" BlurRadius="6" ShadowDepth="2" Opacity="0.4"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#5A4FCF"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <ScaleTransform ScaleX="0.94" ScaleY="0.94"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Save Button (Green) -->
+        <Style x:Key="SaveButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Background" Value="#00B894"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#00A07A"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DataGrid Row Style -->
+        <Style x:Key="DataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Margin" Value="0,3"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridRow">
+                        <Border x:Name="RowBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="6,4"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0">
+                            <SelectiveScrollingGrid>
+                                <DataGridCellsPresenter/>
+                            </SelectiveScrollingGrid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="RowBorder" Property="Background" Value="#E3F2FD"/>
+                                <Setter TargetName="RowBorder" Property="BorderBrush" Value="#6C5CE7"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RowBorder" Property="Background" Value="#F5F7FA"/>
+                            </Trigger>
+                            <Trigger Property="AlternationIndex" Value="0">
+                                <Setter TargetName="RowBorder" Property="Background" Value="#FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="AlternationIndex" Value="1">
+                                <Setter TargetName="RowBorder" Property="Background" Value="#FAFBFC"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Column Header -->
+        <Style x:Key="HeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#6C5CE7"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="DemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridColumnHeader">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10,10,0,0">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <!-- ====================== MAIN LAYOUT ====================== -->
+    <Border Background="{StaticResource GlassBackground}"
+            CornerRadius="20"
+            BorderBrush="#33000000"
+            BorderThickness="1" Margin="0,0,0,24">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Opacity="0.18" BlurRadius="30" ShadowDepth="6"/>
+        </Border.Effect>
+
+        <Grid Margin="26,26,24,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+                <RowDefinition Height="Auto" MinHeight="98"/>
+            </Grid.RowDefinitions>
+
+            <!-- Custom Title Bar -->
+            <Grid Grid.Row="0" Background="Transparent" MouseDown="TitleBar_MouseDown">
+                <TextBlock Text="Manage Email Addresses"
+                           FontSize="18" FontWeight="SemiBold"
+                           Foreground="#2C3E50"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button Content="×"
+                        Width="36" Height="36"
+                        HorizontalAlignment="Right" Margin="0,0,6,0"
+                        Background="Transparent" BorderThickness="0"
+                        Foreground="#7F8C8D"
+                        FontSize="20" FontWeight="Bold"
+                        Click="CloseButton_Click"
+                        Cursor="Hand"/>
+            </Grid>
+
+            <!-- DataGrid -->
+            <DataGrid x:Name="EmailGrid"
+                      Grid.Row="1"
+                      Margin="0,0,0,10"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      SelectionMode="Single"
+                      AlternationCount="2"
+                      RowStyle="{StaticResource DataGridRowStyle}"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="None"
+                      Background="Transparent"
+                      BorderThickness="1" VerticalAlignment="Top"                
+                      BorderBrush="#33FFFFFF"
+                      RowHeaderWidth="0"
+                      FontSize="13">
+                <DataGrid.Columns>
+                    
+                    <DataGridTextColumn Header="S.No" Binding="{Binding Index}" Width="70" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                        <DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource HeaderStyle}"/>
+                        </DataGridTextColumn.HeaderStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="440">
+                        <DataGridTextColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource HeaderStyle}"/>
+                        </DataGridTextColumn.HeaderStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- Input Card -->
+            <Border Grid.Row="2"
+                    Background="{StaticResource GlassCard}"
+                    CornerRadius="16"
+                    Padding="18"
+                    BorderBrush="#33FFFFFF"
+                    BorderThickness="1" Height="88" VerticalAlignment="Top">
+                <Border.Effect>
+                    <DropShadowEffect Color="#30000000" BlurRadius="14" ShadowDepth="4"/>
+                </Border.Effect>
+
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" Width="510" Height="48">
+                    <!-- Rounded TextBox via Template -->
+
+                    <!-- Rounded TextBox via Template -->
+                    <TextBox x:Name="NewEmailBox"
+                             Width="270" Height="38"
+                             FontSize="16"
+                             Padding="5,0"
+                             VerticalContentAlignment="Center"
+                             Background="White"
+                             BorderBrush="#CED4DA"
+                             BorderThickness="1.5"
+                             CaretBrush="#6C5CE7"
+                             Text="Enter email..."
+                             Foreground="#95A5A6"
+                             Template="{StaticResource RoundedTextBoxTemplate}"
+                             GotFocus="NewEmailBox_GotFocus"
+                             LostFocus="NewEmailBox_LostFocus" RenderTransformOrigin="0.494,0.489" TextChanged="NewEmailBox_TextChanged">
+                        <TextBox.Effect>
+                            <DropShadowEffect Color="#20000000" BlurRadius="6" ShadowDepth="1"/>
+                        </TextBox.Effect>
+                    </TextBox>
+
+                    <Button Content="Add"  HorizontalAlignment="Center" VerticalAlignment="Center"   Style="{StaticResource ModernButtonStyle}" Click="AddEmail_Click" Width="48"/>
+                    <Button Content="Update" HorizontalAlignment="Center"  VerticalAlignment="Center"   Style="{StaticResource ModernButtonStyle}" Click="UpdateEmail_Click" Width="48"/>
+                    <Button Content="Delete"  HorizontalAlignment="Center"  VerticalAlignment="Center"  Style="{StaticResource ModernButtonStyle}" Click="DeleteEmail_Click" Width="48"/>
+                    <Button Content="Save"   HorizontalAlignment="Center"  VerticalAlignment="Center"   Style="{StaticResource SaveButtonStyle}" Click="SaveEmails_Click" Width="48"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
